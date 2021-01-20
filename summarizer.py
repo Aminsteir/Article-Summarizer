@@ -1,3 +1,5 @@
+# Code credited to Pushkara Sharma and his medium.com article on text summarization
+
 import urllib.request as url
 import bs4
 import regex as re
@@ -8,24 +10,31 @@ from nltk import word_tokenize
 
 
 def main():
-    article_url = input('Url of article: ')
+    is_art = input('Is url? (y/n) ')
+
+    if is_art.lower() == 'y':
+        article_url = input('Url of article: ')
+
+        html = url.urlopen(article_url)
+        page = bs4.BeautifulSoup(html, features='lxml')
+
+        # Find all paragraphs
+        paragraphs = page.find_all('p')
+        text = reformat(paragraphs)
+    else:
+        paragraphs = input('Text: \n')
+        text = reformat(paragraphs, False)
+
     n_sent = int(input('Number of sentences in summary: '))
-
-    html = url.urlopen(article_url)
-    page = bs4.BeautifulSoup(html, features='lxml')
-
-    # Find all paragraphs
-    paragraphs = page.find_all('p')
-
-    # Text Processing
-    text = reformat(paragraphs)
     summary = process(text, n_sent)
 
     print(summary)
 
 
-def reformat(paragraphs):
-    text = ''.join([i.text for i in paragraphs])
+def reformat(paragraphs, is_arr=True):
+    text = paragraphs
+    if is_arr:
+        text = ''.join([i.text for i in paragraphs])
     text = text.replace(r'^\s+|\s+?$', '')
     text = text.replace('\n', ' ')
     text = text.replace('\\', '')
